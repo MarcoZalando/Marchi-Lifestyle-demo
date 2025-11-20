@@ -8,7 +8,7 @@
     <!-- 1. Tailwind CSS inladen -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 2. React en Babel inladen (zodat de browser de code snapt) -->
+    <!-- 2. React en Babel inladen -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <!-- Styling voor animaties -->
@@ -26,22 +26,28 @@
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-10px); }
         }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
     </style>
 </head>
 <body class="bg-slate-50">
 
-    <!-- Hier wordt de app in geladen -->
     <div id="root"></div>
 
-    <!-- 3. De App Code -->
     <script type="text/babel" data-type="module">
-        // We importeren React en de iconen direct van het internet (ESM)
         import React, { useState, useEffect } from 'https://esm.sh/react@18.2.0';
         import { createRoot } from 'https://esm.sh/react-dom@18.2.0/client';
         import { 
           Leaf, Moon, Activity, Droplets, ChevronRight, CheckCircle, Home, Plus, 
-          Smile, Frown, Wind, Utensils, Footprints, User, ArrowRight, Play, 
-          Pause, X, Clock, Headphones, Flame, StopCircle 
+          Smile, Meh, Frown, Wind, Utensils, Footprints, User, ArrowRight, Play, 
+          Pause, X, Clock, Headphones, Flame, StopCircle, Search, ChefHat, Coffee, Sun, Moon as MoonIcon
         } from 'https://esm.sh/lucide-react@0.292.0';
 
         // --- CONFIGURATIE & DATA ---
@@ -53,14 +59,28 @@
             zacht: 'text-slate-500'
         };
 
-        const FOOD_DATABASE = [
-            { id: 1, naam: 'Havermout met bessen', type: 'ontbijt', gezond: true, calorieen: 300 },
-            { id: 2, naam: 'Griekse Yoghurt', type: 'ontbijt', gezond: true, calorieen: 200 },
-            { id: 3, naam: 'Croissant', type: 'ontbijt', gezond: false, swap: 'Volkoren toast met avocado' },
-            { id: 4, naam: 'Quinoa Salade', type: 'lunch', gezond: true, calorieen: 450 },
-            { id: 5, naam: 'Witte pasta', type: 'diner', gezond: false, swap: 'Courgette pasta of volkoren pasta' },
-            { id: 6, naam: 'Zak Chips', type: 'snack', gezond: false, swap: 'Handje ongezouten noten of popcorn' },
-            { id: 7, naam: 'Appel', type: 'snack', gezond: true, calorieen: 60 },
+        // Uitgebreide Recepten Database met allergie-tags en doelen
+        const RECEPTEN_DATABASE = [
+            // OCHTEND
+            { id: 'o1', naam: 'Havermout Power Bowl', type: 'ochtend', cal: 350, bevat: ['gluten', 'vega'], doelen: ['Meer energie', 'Afvallen'] },
+            { id: 'o2', naam: 'Griekse Yoghurt & Noten', type: 'ochtend', cal: 280, bevat: ['lactose', 'noten', 'vega', 'keto'], doelen: ['Afvallen', 'Beter slapen'] },
+            { id: 'o3', naam: 'Scrambled Tofu Toast', type: 'ochtend', cal: 320, bevat: ['gluten', 'vegan', 'vega'], doelen: ['Meer energie', 'Flexibiliteit'] },
+            { id: 'o4', naam: 'Groene Smoothie', type: 'ochtend', cal: 180, bevat: ['vegan', 'vega', 'paleo'], doelen: ['Afvallen', 'Stress verminderen'] },
+            { id: 'o5', naam: 'Omelet met Spek', type: 'ochtend', cal: 400, bevat: ['carnivoor', 'keto', 'paleo'], doelen: ['Meer energie'] },
+            
+            // LUNCH
+            { id: 'l1', naam: 'Quinoa Salade', type: 'lunch', cal: 450, bevat: ['vegan', 'vega'], doelen: ['Meer energie', 'Afvallen'] },
+            { id: 'l2', naam: 'Kip Avocado Wrap', type: 'lunch', cal: 500, bevat: ['gluten', 'carnivoor'], doelen: ['Meer energie'] },
+            { id: 'l3', naam: 'Linzensoep met Pompoen', type: 'lunch', cal: 300, bevat: ['vegan', 'vega'], doelen: ['Afvallen', 'Stress verminderen'] },
+            { id: 'l4', naam: 'Gerookte Zalm Salade', type: 'lunch', cal: 400, bevat: ['vis', 'schaaldieren', 'keto', 'paleo', 'carnivoor'], doelen: ['Beter slapen'] },
+            { id: 'l5', naam: 'Steak Strips', type: 'lunch', cal: 450, bevat: ['carnivoor', 'keto', 'paleo'], doelen: ['Meer energie'] },
+
+            // AVOND
+            { id: 'a1', naam: 'Gegrilde Zalm & Asperges', type: 'avond', cal: 550, bevat: ['vis', 'keto', 'paleo', 'carnivoor'], doelen: ['Beter slapen', 'Afvallen'] },
+            { id: 'a2', naam: 'Courgetti Bolognese', type: 'avond', cal: 350, bevat: ['vega', 'keto'], doelen: ['Afvallen', 'Meer energie'] },
+            { id: 'a3', naam: 'Zoete Aardappel Curry', type: 'avond', cal: 450, bevat: ['vegan', 'vega'], doelen: ['Stress verminderen'] },
+            { id: 'a4', naam: 'Kip met Rijst & Broccoli', type: 'avond', cal: 500, bevat: ['carnivoor'], doelen: ['Meer energie'] },
+            { id: 'a5', naam: 'Ribeye met Kruidenboter', type: 'avond', cal: 600, bevat: ['carnivoor', 'keto'], doelen: ['Meer energie'] },
         ];
 
         const MEDITATIES = [
@@ -82,7 +102,10 @@
 
         function MarchiApp() {
             const [scherm, setScherm] = useState('onboarding'); 
-            const [gebruiker, setGebruiker] = useState({ naam: '', doelen: [], allergieen: [] });
+            const [gebruiker, setGebruiker] = useState({ 
+                naam: '', leeftijd: '', geslacht: '', gewicht: '', 
+                doelen: [], allergieen: [] 
+            });
             const [dagLog, setDagLog] = useState({
                 water: 3, stemming: 5, stappen: 2400, maaltijden: [],
                 verbrandeCalorieen: 120, meditatieGedaan: false, workoutGedaan: false,
@@ -97,7 +120,7 @@
                 switch(scherm) {
                 case 'onboarding': return <Onboarding onComplete={rondOnboardingAf} />;
                 case 'dashboard': return <Dashboard gebruiker={gebruiker} dagLog={dagLog} setDagLog={setDagLog} navigeer={setScherm} />;
-                case 'voeding': return <VoedingModule dagLog={dagLog} setDagLog={setDagLog} navigeer={setScherm} />;
+                case 'voeding': return <VoedingModule dagLog={dagLog} setDagLog={setDagLog} navigeer={setScherm} gebruiker={gebruiker} />;
                 case 'geest': return <GeestModule dagLog={dagLog} setDagLog={setDagLog} navigeer={setScherm} />;
                 case 'beweging': return <BewegingModule dagLog={dagLog} setDagLog={setDagLog} navigeer={setScherm} />;
                 default: return <Dashboard gebruiker={gebruiker} dagLog={dagLog} navigeer={setScherm} />;
@@ -131,7 +154,10 @@
 
         const Onboarding = ({ onComplete }) => {
             const [stap, setStap] = useState(1);
-            const [data, setData] = useState({ naam: '', doelen: [], allergieen: [] });
+            const [data, setData] = useState({ 
+                naam: '', leeftijd: '', geslacht: '', gewicht: '', 
+                doelen: [], allergieen: [] 
+            });
 
             const toggleSelectie = (veld, waarde) => {
                 setData(prev => {
@@ -143,9 +169,12 @@
             return (
                 <div className="flex-1 p-8 flex flex-col justify-between bg-gradient-to-br from-emerald-50 to-white">
                     <div className="mt-10">
+                        {/* Progress Bar */}
                         <div className="w-full bg-slate-100 h-2 rounded-full mb-8">
-                            <div className="bg-emerald-500 h-2 rounded-full transition-all duration-500" style={{ width: `${stap * 33}%` }}></div>
+                            <div className="bg-emerald-500 h-2 rounded-full transition-all duration-500" style={{ width: `${stap * 25}%` }}></div>
                         </div>
+
+                        {/* STAP 1: NAAM */}
                         {stap === 1 && (
                             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <h1 className="text-3xl font-bold text-slate-800 mb-2">Welkom bij Marchi.</h1>
@@ -154,7 +183,43 @@
                                 value={data.naam} onChange={(e) => setData({...data, naam: e.target.value})} />
                             </div>
                         )}
+
+                        {/* STAP 2: PERSOONLIJKE DETAILS (NIEUW) */}
                         {stap === 2 && (
+                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                <h1 className="text-2xl font-bold text-slate-800 mb-2">Iets meer over jou</h1>
+                                <p className="text-slate-500 mb-6">Dit helpt ons je betere suggesties te geven.</p>
+                                
+                                <div className="space-y-5">
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">Leeftijd</label>
+                                        <input type="number" placeholder="25" className="w-full bg-white border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-emerald-500"
+                                        value={data.leeftijd} onChange={(e) => setData({...data, leeftijd: e.target.value})} />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">Geslacht</label>
+                                        <div className="flex gap-3">
+                                            {['Vrouw', 'Man', 'Anders'].map(optie => (
+                                                <button key={optie} onClick={() => setData({...data, geslacht: optie})}
+                                                className={`flex-1 py-3 rounded-xl border transition-all ${data.geslacht === optie ? 'bg-emerald-100 border-emerald-500 text-emerald-700 font-bold' : 'bg-white border-slate-200 text-slate-500'}`}>
+                                                    {optie}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">Gewicht (kg)</label>
+                                        <input type="number" placeholder="70" className="w-full bg-white border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-emerald-500"
+                                        value={data.gewicht} onChange={(e) => setData({...data, gewicht: e.target.value})} />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* STAP 3: DOELEN */}
+                        {stap === 3 && (
                             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <h1 className="text-2xl font-bold text-slate-800 mb-2">Wat is belangrijk voor je?</h1>
                                 <div className="space-y-3 mt-6">
@@ -167,13 +232,28 @@
                                 </div>
                             </div>
                         )}
-                        {stap === 3 && (
+
+                        {/* STAP 4: ALLERGIEËN & VOORKEUREN (UPDATED) */}
+                        {stap === 4 && (
                             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <h1 className="text-2xl font-bold text-slate-800 mb-2">Heb je allergieën?</h1>
-                                <div className="flex flex-wrap gap-3 mt-6">
-                                    {['Gluten', 'Lactose', 'Noten', 'Schaaldieren', 'Vega', 'Vegan'].map(item => (
+                                <h1 className="text-2xl font-bold text-slate-800 mb-2">Allergieën & Voorkeuren</h1>
+                                <p className="text-slate-500 text-sm mb-4">Selecteer wat je niet mag of wilt eten, en welke diëten je volgt.</p>
+                                
+                                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wide mb-2">Allergieën</h3>
+                                <div className="flex flex-wrap gap-3 mb-6">
+                                    {['Gluten', 'Lactose', 'Noten', 'Schaaldieren'].map(item => (
                                         <button key={item} onClick={() => toggleSelectie('allergieen', item)}
                                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${data.allergieen.includes(item) ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-500'}`}>
+                                        {item}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wide mb-2">Dieetvoorkeuren</h3>
+                                <div className="flex flex-wrap gap-3">
+                                    {['Vega', 'Vegan', 'Carnivoor', 'Keto', 'Paleo'].map(item => (
+                                        <button key={item} onClick={() => toggleSelectie('allergieen', item)}
+                                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${data.allergieen.includes(item) ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
                                         {item}
                                         </button>
                                     ))}
@@ -181,9 +261,15 @@
                             </div>
                         )}
                     </div>
-                    <button disabled={stap === 1 && !data.naam} onClick={() => { if (stap < 3) setStap(stap + 1); else onComplete(data); }}
+
+                    <button 
+                        disabled={
+                            (stap === 1 && !data.naam) || 
+                            (stap === 2 && (!data.leeftijd || !data.geslacht || !data.gewicht))
+                        } 
+                        onClick={() => { if (stap < 4) setStap(stap + 1); else onComplete(data); }}
                         className="w-full bg-slate-900 text-white py-4 rounded-2xl font-semibold shadow-lg shadow-slate-200 disabled:opacity-50 flex items-center justify-center gap-2">
-                        {stap === 3 ? 'Start mijn reis' : 'Volgende'} <ArrowRight size={18} />
+                        {stap === 4 ? 'Start mijn reis' : 'Volgende'} <ArrowRight size={18} />
                     </button>
                 </div>
             );
@@ -255,35 +341,165 @@
             );
         };
 
-        const VoedingModule = ({ dagLog, setDagLog, navigeer }) => {
-            const voegMaaltijdToe = (item) => {
-                if (!item.gezond && item.swap) alert(`Tip van Marchi: Probeer eens ${item.swap} voor meer energie!`);
-                setDagLog(prev => ({ ...prev, maaltijden: [...prev.maaltijden, item] }));
+        // --- VERNIEUWDE VOEDING MODULE ---
+        const VoedingModule = ({ dagLog, setDagLog, navigeer, gebruiker }) => {
+            const [activeTab, setActiveTab] = useState('log');
+            const [zoekTerm, setZoekTerm] = useState('');
+
+            const voegHandmatigToe = () => {
+                if(!zoekTerm) return;
+                const nieuwItem = { id: Date.now(), naam: zoekTerm, type: 'handmatig', gezond: true, calorieen: 200, isHandmatig: true };
+                setDagLog(prev => ({ ...prev, maaltijden: [...prev.maaltijden, nieuwItem] }));
+                setZoekTerm('');
             };
+
+            const voegReceptToe = (recept) => {
+                setDagLog(prev => ({ ...prev, maaltijden: [...prev.maaltijden, { ...recept, gezond: true, calorieen: recept.cal }] }));
+                alert(`${recept.naam} toegevoegd aan je dagboek!`);
+            };
+
+            // UPDATED FILTER LOGICA
+            const filterRecepten = (receptenLijst) => {
+                return receptenLijst.filter(recept => {
+                    // 1. Allergie Exclusie (als recept 'gluten' bevat en gebruiker heeft 'Gluten' allergie -> verberg)
+                    const bevatVerbodenAllergeen = gebruiker.allergieen.some(allergie => {
+                        const dieetTermen = ['Vega', 'Vegan', 'Carnivoor', 'Keto', 'Paleo'];
+                        if(dieetTermen.includes(allergie)) return false; // Sla dieetvoorkeuren over bij exclusie
+                        return recept.bevat.includes(allergie.toLowerCase());
+                    });
+                    if (bevatVerbodenAllergeen) return false;
+
+                    // 2. Dieet Inclusie (als gebruiker 'Carnivoor' kiest, toon bij voorkeur 'Carnivoor' gerechten)
+                    // We maken dit semi-strict: Als je Carnivoor bent, wil je vlees zien.
+                    const isCarnivoor = gebruiker.allergieen.includes('Carnivoor');
+                    const isKeto = gebruiker.allergieen.includes('Keto');
+                    const isPaleo = gebruiker.allergieen.includes('Paleo');
+                    const isVegan = gebruiker.allergieen.includes('Vegan');
+                    const isVega = gebruiker.allergieen.includes('Vega');
+
+                    if (isVegan && !recept.bevat.includes('vegan')) return false;
+                    if (isVega && !recept.bevat.includes('vega') && !recept.bevat.includes('vegan')) return false;
+                    
+                    // Voor Carnivoor/Keto/Paleo filteren we wat strenger om relevante opties te tonen
+                    if (isCarnivoor && !recept.bevat.includes('carnivoor')) return false;
+                    if (isKeto && !recept.bevat.includes('keto')) return false;
+                    
+                    return true;
+                });
+            };
+
+            const veiligeRecepten = filterRecepten(RECEPTEN_DATABASE);
+            const ochtendRecepten = veiligeRecepten.filter(r => r.type === 'ochtend');
+            const lunchRecepten = veiligeRecepten.filter(r => r.type === 'lunch');
+            const avondRecepten = veiligeRecepten.filter(r => r.type === 'avond');
+
             return (
-                <div className="flex-1 bg-white overflow-y-auto pb-24">
+                <div className="flex-1 bg-white overflow-y-auto pb-24 flex flex-col">
                     <Header titel="Voeding" subtitel="Voed je lichaam" kleur="text-emerald-600" onBack={() => navigeer('dashboard')} />
-                    <div className="p-6">
-                        <div className="bg-emerald-50 p-6 rounded-3xl mb-8">
-                            <h3 className="text-emerald-800 font-bold text-lg mb-1">Vandaag gegeten</h3>
-                            <p className="text-emerald-600 text-sm mb-4">{dagLog.maaltijden.length === 0 ? 'Nog niets gelogd.' : `${dagLog.maaltijden.length} items gelogd.`}</p>
-                            <div className="space-y-2">{dagLog.maaltijden.map((m, idx) => (
-                                <div key={idx} className="bg-white/80 p-3 rounded-xl text-sm flex justify-between items-center"><span>{m.naam}</span><span className="text-xs font-bold text-emerald-600">{m.gezond ? 'Top!' : 'Geniet ervan'}</span></div>
-                            ))}</div>
+                    
+                    <div className="px-6 mt-2 mb-4">
+                        <div className="flex bg-slate-100 p-1 rounded-xl">
+                            <button onClick={() => setActiveTab('log')} className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'log' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400'}`}>Logboek</button>
+                            <button onClick={() => setActiveTab('inspiratie')} className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'inspiratie' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400'}`}>Inspiratie</button>
                         </div>
-                        <h3 className="font-bold text-slate-800 mb-4">Wat heb je gegeten?</h3>
-                        <div className="grid grid-cols-1 gap-3">{FOOD_DATABASE.map(item => (
-                            <button key={item.id} onClick={() => voegMaaltijdToe(item)} className="flex items-center justify-between p-4 border border-slate-100 rounded-2xl hover:border-emerald-200 active:bg-slate-50 transition-colors text-left">
-                                <div><span className="font-medium text-slate-700 block">{item.naam}</span><span className="text-xs text-slate-400 uppercase">{item.type}</span></div><Plus size={18} className="text-slate-300" />
-                            </button>
-                        ))}</div>
                     </div>
+
+                    {activeTab === 'log' ? (
+                        <div className="p-6 pt-2">
+                            <div className="flex gap-2 mb-6">
+                                <div className="relative flex-1">
+                                    <Search size={18} className="absolute left-3 top-3.5 text-slate-400" />
+                                    <input 
+                                        type="text" 
+                                        placeholder="Wat heb je gegeten?" 
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:border-emerald-300"
+                                        value={zoekTerm}
+                                        onChange={(e) => setZoekTerm(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && voegHandmatigToe()}
+                                    />
+                                </div>
+                                <button onClick={voegHandmatigToe} disabled={!zoekTerm} className="bg-emerald-600 text-white px-4 rounded-xl disabled:opacity-50"><Plus size={24} /></button>
+                            </div>
+
+                            <div className="bg-emerald-50 p-6 rounded-3xl mb-8">
+                                <div className="flex justify-between items-end mb-4">
+                                    <div>
+                                        <h3 className="text-emerald-800 font-bold text-lg mb-1">Vandaag</h3>
+                                        <p className="text-emerald-600 text-sm">{dagLog.maaltijden.length === 0 ? 'Nog niets gelogd.' : `${dagLog.maaltijden.length} items · ~${dagLog.maaltijden.reduce((acc, cur) => acc + (cur.calorieen || 0), 0)} kcal`}</p>
+                                    </div>
+                                    <div className="bg-white/50 p-2 rounded-full"><ChefHat className="text-emerald-600" size={20} /></div>
+                                </div>
+                                <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                                    {dagLog.maaltijden.map((m, idx) => (
+                                        <div key={idx} className="bg-white/80 p-3 rounded-xl text-sm flex justify-between items-center">
+                                            <span>{m.naam}</span>
+                                            <span className="text-xs font-bold text-emerald-600">{m.isHandmatig ? 'Handmatig' : (m.cal ? `${m.cal} kcal` : 'Gelogd')}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="p-6 pt-2 space-y-8">
+                            <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl text-sm text-amber-800">
+                                💡 Suggesties zijn gefilterd op jouw allergieën & dieet: <strong>{gebruiker.allergieen.join(', ') || 'Geen'}</strong>
+                            </div>
+
+                            <div>
+                                <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2"><Coffee size={18} className="text-orange-400"/> Ochtend</h3>
+                                <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+                                    {ochtendRecepten.map(r => <ReceptKaart key={r.id} recept={r} onAdd={() => voegReceptToe(r)} />)}
+                                    {ochtendRecepten.length === 0 && <p className="text-slate-400 text-sm italic">Geen passende recepten gevonden.</p>}
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2"><Sun size={18} className="text-yellow-500"/> Lunch</h3>
+                                <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+                                    {lunchRecepten.map(r => <ReceptKaart key={r.id} recept={r} onAdd={() => voegReceptToe(r)} />)}
+                                    {lunchRecepten.length === 0 && <p className="text-slate-400 text-sm italic">Geen passende recepten gevonden.</p>}
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2"><MoonIcon size={18} className="text-indigo-400"/> Avondeten</h3>
+                                <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+                                    {avondRecepten.map(r => <ReceptKaart key={r.id} recept={r} onAdd={() => voegReceptToe(r)} />)}
+                                    {avondRecepten.length === 0 && <p className="text-slate-400 text-sm italic">Geen passende recepten gevonden.</p>}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         };
 
+        const ReceptKaart = ({ recept, onAdd }) => (
+            <div className="min-w-[200px] bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:border-emerald-200 transition-colors">
+                <div className="flex flex-wrap gap-1 mb-2">
+                    {recept.doelen.slice(0,1).map(d => <span key={d} className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-medium">{d}</span>)}
+                </div>
+                <h4 className="font-bold text-slate-800 text-sm mb-1 truncate">{recept.naam}</h4>
+                <p className="text-xs text-slate-400 mb-4">{recept.cal} kcal</p>
+                <button onClick={onAdd} className="w-full py-2 bg-slate-50 text-emerald-600 text-xs font-bold rounded-lg hover:bg-emerald-50 transition-colors">
+                    + Eet dit
+                </button>
+            </div>
+        );
+
         const GeestModule = ({ dagLog, setDagLog, navigeer }) => {
             const [actieveSessie, setActieveSessie] = useState(null);
+            
+            // 6 Verschillende tekstopties o.b.v. slider positie
+            const getStemmingBeschrijving = (waarde) => {
+                if (waarde <= 2) return "Erg gestrest of vermoeid";
+                if (waarde <= 4) return "Niet helemaal in mijn hum";
+                if (waarde <= 5) return "Neutraal, het gaat wel";
+                if (waarde <= 6) return "Rustig en kalm";
+                if (waarde <= 8) return "Goed en energiek";
+                return "Fantastisch en in balans!";
+            };
+
             const krijgSuggestie = () => {
                 if (dagLog.stemming <= 4) return MEDITATIES.find(m => m.id === 'sos');
                 if (dagLog.stemming >= 8) return MEDITATIES.find(m => m.id === 'focus');
@@ -299,12 +515,29 @@
                     <div className="p-6">
                         <div className="mb-8 text-center bg-indigo-50 rounded-3xl p-6">
                             <h3 className="font-bold text-slate-800 text-lg mb-6">Hoe voel je je nu?</h3>
-                            <div className="flex justify-between px-4 text-2xl mb-4">
-                                <Frown className={dagLog.stemming > 0 && dagLog.stemming < 5 ? 'text-indigo-500 scale-125' : 'text-slate-300'} />
-                                <Smile className={dagLog.stemming >= 5 ? 'text-indigo-500 scale-125' : 'text-slate-300'} />
+                            
+                            {/* 3 Iconen: Frown - Meh - Smile */}
+                            <div className="flex justify-between px-2 text-2xl mb-4">
+                                <Frown className={`transition-transform duration-300 ${dagLog.stemming < 5 ? 'text-indigo-500 scale-125' : 'text-slate-300'}`} />
+                                <Meh className={`transition-transform duration-300 ${dagLog.stemming >= 5 && dagLog.stemming <= 6 ? 'text-indigo-500 scale-125' : 'text-slate-300'}`} />
+                                <Smile className={`transition-transform duration-300 ${dagLog.stemming > 6 ? 'text-indigo-500 scale-125' : 'text-slate-300'}`} />
                             </div>
-                            <input type="range" min="1" max="10" value={dagLog.stemming} onChange={(e) => setDagLog({...dagLog, stemming: parseInt(e.target.value)})} className="w-full h-2 bg-white rounded-lg appearance-none cursor-pointer accent-indigo-500 mb-2" />
+                            
+                            <input 
+                                type="range" 
+                                min="1" 
+                                max="10" 
+                                value={dagLog.stemming} 
+                                onChange={(e) => setDagLog({...dagLog, stemming: parseInt(e.target.value)})} 
+                                className="w-full h-2 bg-white rounded-lg appearance-none cursor-pointer accent-indigo-500 mb-4" 
+                            />
+                            
+                            {/* Dynamische Tekst */}
+                            <p className="text-indigo-600 font-bold text-lg animate-in fade-in slide-in-from-bottom-1 duration-300 key={dagLog.stemming}">
+                                {getStemmingBeschrijving(dagLog.stemming)}
+                            </p>
                         </div>
+
                         <h3 className="font-bold text-slate-800 mb-4">Speciaal voor jou</h3>
                         <button onClick={() => setActieveSessie(suggestie)} className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-3xl p-6 relative overflow-hidden text-left mb-8 shadow-lg shadow-indigo-200">
                             <Wind className="absolute -right-4 -bottom-4 text-white/20 w-32 h-32" />
