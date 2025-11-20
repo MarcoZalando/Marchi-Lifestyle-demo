@@ -16,14 +16,17 @@
     
     <style>
         /* Animaties */
-        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.3); opacity: 0.3; } }
-        @keyframes pulse-fast { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 0.6; } 100% { transform: scale(1); opacity: 0.8; } }
+        @keyframes breathe { 
+            0%, 100% { transform: scale(1); opacity: 0.6; } 
+            50% { transform: scale(1.4); opacity: 0.3; } 
+        }
+        .animate-breathe { animation: breathe 6s ease-in-out infinite; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
         /* Slider Styling */
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); cursor: pointer; margin-top: -8px; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 8px; cursor: pointer; background: rgba(255,255,255,0.3); border-radius: 4px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 8px; cursor: pointer; border-radius: 4px; }
         
         /* Modal Animatie */
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -53,20 +56,25 @@
 
         const MOCK_HISTORY = Array.from({length: 30}, (_, i) => ({ date: new Date(Date.now() - (29 - i) * 86400000), score: Math.floor(Math.random() * 60) + 40 }));
 
-        // Recepten met dummy details
         const RECEPTEN_DATABASE = [
+            // OCHTEND
             { id: 'o1', naam: 'Havermout Power Bowl', type: 'ochtend', cal: 350, bevat: ['gluten', 'vega'], doelen: ['Meer energie'], ingredienten: ['Havermout', 'Amandelmelk', 'Banaan', 'Chia zaad'], bereiding: 'Kook de havermout in de melk. Top af met banaan en zaden.' },
             { id: 'o2', naam: 'Griekse Yoghurt & Noten', type: 'ochtend', cal: 280, bevat: ['lactose', 'noten', 'vega', 'keto'], doelen: ['Afvallen'], ingredienten: ['Griekse Yoghurt', 'Walnoten', 'Honing', 'Blauwe bessen'], bereiding: 'Meng alles in een kom.' },
+            { id: 'o3', naam: 'Scrambled Tofu', type: 'ochtend', cal: 320, bevat: ['vegan', 'vega'], doelen: ['Spieropbouw'], ingredienten: ['Tofu', 'Kurkuma', 'Spinazie', 'Volkoren toast'], bereiding: 'Bak de tofu met kruiden en spinazie.' },
+            // LUNCH
             { id: 'l1', naam: 'Quinoa Salade', type: 'lunch', cal: 450, bevat: ['vegan', 'vega'], doelen: ['Meer energie'], ingredienten: ['Quinoa', 'Komkommer', 'Tomaat', 'Citroendressing'], bereiding: 'Kook quinoa, snij groenten fijn en meng.' },
             { id: 'l2', naam: 'Kip Avocado Wrap', type: 'lunch', cal: 500, bevat: ['gluten', 'carnivoor'], doelen: ['Spieropbouw'], ingredienten: ['Volkoren wrap', 'Kipfilet', 'Avocado', 'Ijsbergsla'], bereiding: 'Vul de wrap en rol op.' },
+            { id: 'l3', naam: 'Pompoensoep', type: 'lunch', cal: 300, bevat: ['vegan', 'vega'], doelen: ['Afvallen'], ingredienten: ['Pompoen', 'Wortel', 'Ui', 'Kokosmelk'], bereiding: 'Kook groenten gaar en pureer met kokosmelk.' },
+            // AVOND
             { id: 'a1', naam: 'Gegrilde Zalm', type: 'avond', cal: 550, bevat: ['vis', 'keto'], doelen: ['Beter slapen'], ingredienten: ['Zalmfilet', 'Asperges', 'Citroen', 'Olijfolie'], bereiding: 'Grill de zalm 4 min per kant. Serveer met asperges.' },
+            { id: 'a2', naam: 'Zoete Aardappel Curry', type: 'avond', cal: 450, bevat: ['vegan', 'vega'], doelen: ['Meer energie'], ingredienten: ['Zoete aardappel', 'Kikkererwten', 'Spinazie', 'Currypasta'], bereiding: 'Stoof alles in de currypasta en kokosmelk.' },
             { id: 'a4', naam: 'Kip met Rijst & Broccoli', type: 'avond', cal: 500, bevat: ['carnivoor'], doelen: ['Spieropbouw'], ingredienten: ['Kipfilet', 'Zilvervliesrijst', 'Broccoli', 'Sojasaus'], bereiding: 'Kook rijst en broccoli. Bak de kip goudbruin.' },
         ];
 
         const MEDITATIES = [
-            { id: 'sleep', titel: "Diepe Slaap", ondertitel: "Laat de dag los", duur: 600, tags: ['slaap', 'avond', 'moe'] },
-            { id: 'sos', titel: "SOS Ademhaling", ondertitel: "Directe rust", duur: 180, tags: ['stress', 'angst', 'slecht'] },
-            { id: 'gratitude', titel: "Dankbaarheid", ondertitel: "Waardering voelen", duur: 300, tags: ['geluk', 'rust', 'goed'] },
+            { id: 'sleep', titel: "Diepe Slaap", ondertitel: "Laat de dag los", duur: 600, tags: ['slaap', 'avond', 'moe', 'rust'] },
+            { id: 'sos', titel: "SOS Ademhaling", ondertitel: "Directe rust", duur: 180, tags: ['stress', 'angst', 'slecht', 'paniek'] },
+            { id: 'gratitude', titel: "Dankbaarheid", ondertitel: "Waardering voelen", duur: 300, tags: ['geluk', 'rust', 'goed', 'blij'] },
             { id: 'focus', titel: "Laser Focus", ondertitel: "Voor werk of studie", duur: 300, tags: ['focus', 'werk', 'neutraal'] },
             { id: 'morning', titel: "Ochtend Energie", ondertitel: "Start krachtig", duur: 240, tags: ['ochtend', 'energie', 'goed'] },
         ];
@@ -82,17 +90,36 @@
         function MarchiApp() {
             const [scherm, setScherm] = useState('onboarding'); 
             const [gebruiker, setGebruiker] = useState({ naam: '', leeftijd: '', geslacht: '', gewicht: '', doelen: [], allergieen: [] });
+            const [confettiGevierd, setConfettiGevierd] = useState(false);
             
-            // State start nu netjes op 0
             const [dagLog, setDagLog] = useState({
                 water: 0, 
                 stemming: 5, 
+                checkInGedaan: false,
                 stappen: 0, 
                 maaltijden: [],
+                meditatieSessies: [],
                 verbrandeCalorieen: 0, 
-                meditatieGedaan: false, 
                 workoutGedaan: false,
             });
+
+            // Score berekening (4 pijlers x 25 punten = 100%)
+            const scoreWater = (Math.min(dagLog.water, 8) / 8) * 25;
+            const scoreVoeding = Math.min(1, dagLog.maaltijden.length / 3) * 25;
+            const scoreMind = (dagLog.meditatieSessies.length > 0 || dagLog.checkInGedaan) ? 25 : 0;
+            const scoreBody = (dagLog.workoutGedaan || dagLog.stappen >= 6000) ? 25 : 0;
+            const balansScore = Math.min(100, Math.round(scoreWater + scoreVoeding + scoreMind + scoreBody));
+            
+            const takenTotaal = 4; 
+            const takenGedaan = (dagLog.water >= 8 ? 1 : 0) + (dagLog.maaltijden.length >= 3 ? 1 : 0) + (scoreMind > 0 ? 1 : 0) + (scoreBody > 0 ? 1 : 0);
+            const takenOver = Math.max(0, takenTotaal - takenGedaan);
+
+            useEffect(() => {
+                if (balansScore === 100 && !confettiGevierd) {
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#10B981', '#6366F1', '#F43F5E'] });
+                    setConfettiGevierd(true);
+                }
+            }, [balansScore, confettiGevierd]);
 
             const rondOnboardingAf = (profielData) => {
                 setGebruiker({ ...gebruiker, ...profielData });
@@ -102,11 +129,11 @@
             const renderScherm = () => {
                 switch(scherm) {
                     case 'onboarding': return <Onboarding onComplete={rondOnboardingAf} />;
-                    case 'dashboard': return <Dashboard gebruiker={gebruiker} dagLog={dagLog} setDagLog={setDagLog} navigeer={setScherm} />;
+                    case 'dashboard': return <Dashboard gebruiker={gebruiker} dagLog={dagLog} setDagLog={setDagLog} navigeer={setScherm} balansScore={balansScore} takenOver={takenOver} />;
                     case 'voeding': return <VoedingModule dagLog={dagLog} setDagLog={setDagLog} navigeer={setScherm} gebruiker={gebruiker} />;
                     case 'geest': return <GeestModule dagLog={dagLog} setDagLog={setDagLog} navigeer={setScherm} />;
                     case 'beweging': return <BewegingModule dagLog={dagLog} setDagLog={setDagLog} navigeer={setScherm} />;
-                    default: return <Dashboard gebruiker={gebruiker} dagLog={dagLog} navigeer={setScherm} />;
+                    default: return <Dashboard gebruiker={gebruiker} dagLog={dagLog} navigeer={setScherm} balansScore={balansScore} takenOver={takenOver} />;
                 }
             };
 
@@ -148,7 +175,14 @@
                         {stap === 1 && <div className="animate-in fade-in slide-in-from-bottom-4"><h1 className="text-3xl font-bold text-slate-800 mb-2">Welkom bij Marchi.</h1><input type="text" placeholder="Jouw naam" className="w-full text-2xl border-b-2 border-emerald-200 py-2 focus:outline-none bg-transparent" value={data.naam} onChange={(e) => setData({...data, naam: e.target.value})} /></div>}
                         {stap === 2 && <div className="animate-in fade-in slide-in-from-bottom-4"><h1 className="text-2xl font-bold text-slate-800 mb-4">Jouw Profiel</h1><div className="space-y-4"><input type="number" placeholder="Leeftijd" className="w-full p-3 border rounded-xl" value={data.leeftijd} onChange={(e) => setData({...data, leeftijd: e.target.value})} /><input type="number" placeholder="Gewicht (kg)" className="w-full p-3 border rounded-xl" value={data.gewicht} onChange={(e) => setData({...data, gewicht: e.target.value})} /><div className="flex gap-2">{['Vrouw', 'Man'].map(o => <button key={o} onClick={() => setData({...data, geslacht: o})} className={`flex-1 p-3 rounded-xl border ${data.geslacht === o ? 'bg-emerald-100 border-emerald-500 font-bold' : 'bg-white'}`}>{o}</button>)}</div></div></div>}
                         {stap === 3 && <div className="animate-in fade-in slide-in-from-bottom-4"><h1 className="text-2xl font-bold text-slate-800 mb-2">Doelen</h1><div className="space-y-2 mt-4">{['Meer energie', 'Afvallen', 'Stress verminderen', 'Spieropbouw', 'Conditie'].map(d => <button key={d} onClick={() => toggleSelectie('doelen', d)} className={`w-full p-4 rounded-xl text-left border ${data.doelen.includes(d) ? 'bg-emerald-100 border-emerald-500 text-emerald-800' : 'bg-white'}`}>{d}</button>)}</div></div>}
-                        {stap === 4 && <div className="animate-in fade-in slide-in-from-bottom-4"><h1 className="text-2xl font-bold text-slate-800 mb-2">Voorkeuren</h1><div className="flex flex-wrap gap-2">{['Gluten', 'Lactose', 'Vega', 'Keto', 'Paleo', 'Carnivoor'].map(item => <button key={item} onClick={() => toggleSelectie('allergieen', item)} className={`px-4 py-2 rounded-full border ${data.allergieen.includes(item) ? 'bg-rose-100 border-rose-500 text-rose-700' : 'bg-white'}`}>{item}</button>)}</div></div>}
+                        
+                        {stap === 4 && (
+                            <div className="animate-in fade-in slide-in-from-bottom-4 space-y-6">
+                                <div><h1 className="text-2xl font-bold text-slate-800 mb-1">Voorkeuren</h1><p className="text-slate-400 text-sm">Wat past bij jouw levensstijl?</p></div>
+                                <div><h3 className="font-bold text-sm text-slate-500 uppercase mb-2">Dieet & Leefstijl</h3><div className="flex flex-wrap gap-2">{['Vega', 'Vegan', 'Carnivoor', 'Keto', 'Paleo'].map(item => <button key={item} onClick={() => toggleSelectie('allergieen', item)} className={`px-4 py-2 rounded-full border transition-all ${data.allergieen.includes(item) ? 'bg-emerald-100 border-emerald-500 text-emerald-700 font-bold' : 'bg-white text-slate-600'}`}>{item}</button>)}</div></div>
+                                <div><h3 className="font-bold text-sm text-slate-500 uppercase mb-2">Allergieën & Intoleranties</h3><div className="flex flex-wrap gap-2">{['Gluten', 'Lactose', 'Noten', 'Schaaldieren'].map(item => <button key={item} onClick={() => toggleSelectie('allergieen', item)} className={`px-4 py-2 rounded-full border transition-all ${data.allergieen.includes(item) ? 'bg-rose-100 border-rose-500 text-rose-700 font-bold' : 'bg-white text-slate-600'}`}>{item}</button>)}</div></div>
+                            </div>
+                        )}
                     </div>
                     <button disabled={(stap === 1 && !data.naam) || (stap === 2 && !data.leeftijd)} onClick={() => { if (stap < 4) setStap(stap + 1); else onComplete(data); }} className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-lg flex items-center justify-center gap-2 disabled:opacity-50">{stap === 4 ? 'Start mijn reis' : 'Volgende'} <ArrowRight size={18}/></button>
                 </div>
@@ -156,23 +190,15 @@
         };
 
         // --- DASHBOARD ---
-        const Dashboard = ({ gebruiker, dagLog, setDagLog, navigeer }) => {
+        const Dashboard = ({ gebruiker, dagLog, setDagLog, navigeer, balansScore, takenOver }) => {
             const [view, setView] = useState('vandaag');
-            const [confettiGevierd, setConfettiGevierd] = useState(false);
 
-            const scoreWater = (Math.min(dagLog.water, 8) / 8) * 20;
-            const scoreStappen = (Math.min(dagLog.stappen, 6000) / 6000) * 20;
-            const scoreMind = dagLog.meditatieGedaan ? 20 : 0;
-            const scoreBody = dagLog.workoutGedaan ? 20 : 0;
-            const scoreVoeding = Math.min(1, dagLog.maaltijden.length / 3) * 20;
-            const balansScore = Math.min(100, Math.round(scoreWater + scoreStappen + scoreMind + scoreBody + scoreVoeding));
-
-            useEffect(() => {
-                if (balansScore === 100 && !confettiGevierd) {
-                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#10B981', '#6366F1', '#F43F5E'] });
-                    setConfettiGevierd(true);
-                }
-            }, [balansScore, confettiGevierd]);
+            const groet = () => {
+                const uur = new Date().getHours();
+                if (uur < 12) return 'Goedemorgen';
+                if (uur < 18) return 'Goedemiddag';
+                return 'Goedenavond';
+            };
 
             return (
                 <div className="flex-1 bg-slate-50 overflow-y-auto pb-24 flex flex-col h-full">
@@ -180,7 +206,7 @@
                         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-400 via-indigo-400 to-rose-400"></div>
                         <div className="p-6 pt-12">
                             <div className="flex justify-between items-center mb-6">
-                                <div><h2 className="text-slate-400 text-sm font-medium">Hallo,</h2><h1 className="text-2xl font-bold text-slate-800">{gebruiker.naam || 'Gast'}</h1></div>
+                                <div><h2 className="text-slate-400 text-sm font-medium">{groet()},</h2><h1 className="text-2xl font-bold text-slate-800">{gebruiker.naam || 'Gast'}</h1></div>
                                 <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center border border-slate-200"><User size={20} className="text-slate-600" /></div>
                             </div>
                             <div className="bg-slate-100 p-1 rounded-xl flex mb-6">
@@ -202,12 +228,14 @@
                     </div>
                     {view === 'vandaag' && (
                         <div className="px-6 space-y-4 animate-in slide-in-from-bottom-4">
-                            <div className="flex justify-between items-end"><h3 className="text-lg font-bold text-slate-800">Checklist</h3><span className="text-xs font-medium text-slate-400">{5 - (Math.floor(balansScore/20))} taken over</span></div>
+                            <div className="flex justify-between items-end"><h3 className="text-lg font-bold text-slate-800">Checklist</h3><span className="text-xs font-medium text-slate-400">{takenOver} taken over</span></div>
+                            
                             <ChecklistCard type="voeding" titel="Eetlogboek" subtitel={`${dagLog.maaltijden.length} / 3 maaltijden`} onClick={() => navigeer('voeding')} icon={Utensils} isCompleted={dagLog.maaltijden.length >= 3} />
-                            <ChecklistCard type="geest" titel="Mindset" subtitel={dagLog.meditatieGedaan ? "Voltooid" : "Doe een check-in"} onClick={() => navigeer('geest')} icon={Moon} isCompleted={dagLog.meditatieGedaan} />
+                            
+                            <ChecklistCard type="geest" titel="Mindset" subtitel={(dagLog.meditatieSessies.length > 0 || dagLog.checkInGedaan) ? "Voltooid" : "Doe een meditatie of check-in"} onClick={() => navigeer('geest')} icon={Moon} isCompleted={dagLog.meditatieSessies.length > 0 || dagLog.checkInGedaan} />
+                            
                             <ChecklistCard type="beweging" titel="Beweging" subtitel={`${dagLog.verbrandeCalorieen} kcal verbrand`} onClick={() => navigeer('beweging')} icon={Footprints} isCompleted={dagLog.workoutGedaan || dagLog.stappen >= 6000} />
                             
-                            {/* WATER ITEM - NU MET AFVINK LOGICA */}
                             <div className={`p-4 rounded-2xl flex items-center justify-between border transition-all duration-300 ${dagLog.water >= 8 ? 'bg-slate-50 border-slate-100 opacity-70' : 'bg-white border-slate-100 shadow-sm'}`}>
                                 <div className="flex items-center gap-4">
                                     <div className={`p-3 rounded-xl ${dagLog.water >= 8 ? 'bg-slate-200 text-slate-500' : 'bg-blue-100 text-blue-600'}`}><Droplets size={24} /></div>
@@ -248,13 +276,17 @@
         const VoedingModule = ({ dagLog, setDagLog, navigeer, gebruiker }) => {
             const [activeTab, setActiveTab] = useState('log');
             const [zoekTerm, setZoekTerm] = useState('');
+            const [handmatigeKcal, setHandmatigeKcal] = useState('');
             const [actiefRecept, setActiefRecept] = useState(null);
 
-            const voegHandmatigToe = async () => {
+            const totaalKcal = dagLog.maaltijden.reduce((som, m) => som + (m.calorieen || 0), 0);
+
+            const voegHandmatigToe = () => {
                 if(!zoekTerm) return;
-                const cal = 300; // Simpele fallback
+                const cal = parseInt(handmatigeKcal) || 300; 
                 setDagLog(prev => ({ ...prev, maaltijden: [...prev.maaltijden, { id: Date.now(), naam: zoekTerm, type: 'handmatig', calorieen: cal, isHandmatig: true }] }));
                 setZoekTerm('');
+                setHandmatigeKcal('');
             };
             
             const voegReceptToe = (recept) => {
@@ -262,28 +294,80 @@
                 setActiefRecept(null);
             };
 
+            // Recepten filteren en sorteren
+            const getFilteredRecipes = (type) => {
+                return RECEPTEN_DATABASE
+                    .filter(r => r.type === type)
+                    .filter(r => {
+                         // Exclusie op allergieën
+                         const hasAllergy = gebruiker.allergieen.some(a => {
+                             if(['Vega','Vegan','Carnivoor','Keto','Paleo'].includes(a)) return false;
+                             return r.bevat.includes(a.toLowerCase());
+                         });
+                         if(hasAllergy) return false;
+                         
+                         // Inclusie op dieet
+                         if (gebruiker.allergieen.includes('Vegan') && !r.bevat.includes('vegan')) return false;
+                         if (gebruiker.allergieen.includes('Vega') && !r.bevat.includes('vega') && !r.bevat.includes('vegan')) return false;
+                         if (gebruiker.allergieen.includes('Carnivoor') && !r.bevat.includes('carnivoor')) return false;
+                         if (gebruiker.allergieen.includes('Keto') && !r.bevat.includes('keto')) return false;
+                         
+                         return true;
+                    })
+                    .sort((a, b) => {
+                        // Sorteer op doel match
+                        const aMatch = a.doelen.some(d => gebruiker.doelen.includes(d)) ? 1 : 0;
+                        const bMatch = b.doelen.some(d => gebruiker.doelen.includes(d)) ? 1 : 0;
+                        return bMatch - aMatch;
+                    });
+            };
+
             return (
                 <div className="flex-1 bg-white overflow-y-auto pb-24 flex flex-col">
                     <Header titel="Voeding" subtitel="Voed je lichaam" kleur="text-emerald-600" onBack={() => navigeer('dashboard')} />
-                    <div className="px-6 mt-2 mb-4"><div className="flex bg-slate-100 p-1 rounded-xl"><button onClick={() => setActiveTab('log')} className={`flex-1 py-2 rounded-lg text-sm font-medium ${activeTab === 'log' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400'}`}>Logboek</button><button onClick={() => setActiveTab('inspiratie')} className={`flex-1 py-2 rounded-lg text-sm font-medium ${activeTab === 'inspiratie' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400'}`}>Inspiratie</button></div></div>
+                    
+                    <div className="px-6 pt-2 pb-4 flex justify-between items-center bg-emerald-50/50 mx-6 rounded-2xl mb-4 border border-emerald-100">
+                        <span className="text-emerald-800 font-medium text-sm">Totaal vandaag</span>
+                        <span className="text-2xl font-bold text-emerald-600">{totaalKcal} <span className="text-sm font-normal text-emerald-400">kcal</span></span>
+                    </div>
+
+                    <div className="px-6 mb-4"><div className="flex bg-slate-100 p-1 rounded-xl"><button onClick={() => setActiveTab('log')} className={`flex-1 py-2 rounded-lg text-sm font-medium ${activeTab === 'log' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400'}`}>Logboek</button><button onClick={() => setActiveTab('inspiratie')} className={`flex-1 py-2 rounded-lg text-sm font-medium ${activeTab === 'inspiratie' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400'}`}>Inspiratie</button></div></div>
                     
                     {activeTab === 'log' ? (
                         <div className="p-6 pt-2">
-                            <div className="flex gap-2 mb-6 relative">
-                                <input type="text" placeholder="Bijv. Boterham kaas" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-4 pr-4 focus:outline-none focus:border-emerald-300" value={zoekTerm} onChange={(e) => setZoekTerm(e.target.value)} />
-                                {/* NIEUW: Simpele Plus Knop in plaats van AI */}
-                                <button onClick={voegHandmatigToe} disabled={!zoekTerm} className="bg-emerald-600 text-white w-12 rounded-xl flex items-center justify-center shadow-md active:scale-90 transition-transform"><Plus size={24}/></button>
+                            <div className="flex gap-2 mb-6 relative items-center">
+                                <div className="flex-1 flex flex-col gap-2">
+                                    <input type="text" placeholder="Wat heb je gegeten?" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-4 pr-4 focus:outline-none focus:border-emerald-300" value={zoekTerm} onChange={(e) => setZoekTerm(e.target.value)} />
+                                    <input type="number" placeholder="Kcal (optioneel)" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-4 pr-4 text-sm focus:outline-none focus:border-emerald-300" value={handmatigeKcal} onChange={(e) => setHandmatigeKcal(e.target.value)} />
+                                </div>
+                                <button onClick={voegHandmatigToe} disabled={!zoekTerm} className="bg-emerald-600 text-white h-12 w-12 rounded-xl flex items-center justify-center shadow-md active:scale-90 transition-transform self-start mt-1"><Plus size={24}/></button>
                             </div>
                             <div className="bg-emerald-50 p-6 rounded-3xl"><h3 className="text-emerald-800 font-bold mb-2">Vandaag</h3><div className="space-y-2">{dagLog.maaltijden.map((m, idx) => <div key={idx} className="bg-white/80 p-3 rounded-xl text-sm flex justify-between"><span>{m.naam}</span><span className="font-bold text-emerald-600">{m.calorieen} kcal</span></div>)}</div></div>
                         </div>
                     ) : (
-                        <div className="p-6 pt-2 space-y-6">
-                            {RECEPTEN_DATABASE.map(r => (
-                                <div key={r.id} onClick={() => setActiefRecept(r)} className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm active:scale-95 transition-transform cursor-pointer">
-                                    <h4 className="font-bold text-slate-800">{r.naam}</h4>
-                                    <p className="text-xs text-slate-400">{r.cal} kcal • {r.type}</p>
-                                </div>
-                            ))}
+                        <div className="p-6 pt-2 space-y-8">
+                            {['ochtend', 'lunch', 'avond'].map(type => {
+                                const recipes = getFilteredRecipes(type);
+                                return (
+                                    <div key={type}>
+                                        <h3 className="font-bold text-slate-800 mb-3 capitalize flex items-center gap-2">
+                                            {type === 'ochtend' ? <Coffee size={18} className="text-orange-400"/> : type === 'lunch' ? <Sun size={18} className="text-yellow-500"/> : <MoonIcon size={18} className="text-indigo-400"/>}
+                                            {type}
+                                        </h3>
+                                        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+                                            {recipes.length > 0 ? recipes.map(r => (
+                                                <div key={r.id} onClick={() => setActiefRecept(r)} className="min-w-[200px] bg-white border border-slate-100 rounded-2xl p-4 shadow-sm active:scale-95 transition-transform cursor-pointer hover:border-emerald-200">
+                                                    <div className="flex gap-1 mb-2 h-5">
+                                                        {r.doelen.filter(d => gebruiker.doelen.includes(d)).map(d => <span key={d} className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">{d}</span>)}
+                                                    </div>
+                                                    <h4 className="font-bold text-slate-800 text-sm truncate">{r.naam}</h4>
+                                                    <p className="text-xs text-slate-400 mt-1">{r.cal} kcal</p>
+                                                </div>
+                                            )) : <p className="text-sm text-slate-400 italic pl-2">Geen recepten gevonden voor jouw voorkeuren.</p>}
+                                        </div>
+                                    </div>
+                                )
+                            })}
                         </div>
                     )}
 
@@ -314,9 +398,11 @@
         // --- GEEST MODULE ---
         const GeestModule = ({ dagLog, setDagLog, navigeer }) => {
             const [actieveSessie, setActieveSessie] = useState(null);
-            const bgClass = dagLog.stemming <= 3 ? 'bg-slate-900 text-white' : dagLog.stemming <= 6 ? 'bg-indigo-50 text-slate-800' : 'bg-orange-50 text-slate-800';
-            const accentClass = dagLog.stemming <= 3 ? 'text-indigo-300' : dagLog.stemming <= 6 ? 'text-indigo-600' : 'text-orange-600';
             
+            const cardClass = dagLog.stemming <= 3 ? 'bg-slate-800 text-white' : dagLog.stemming <= 6 ? 'bg-indigo-50 text-slate-800' : 'bg-orange-50 text-slate-800';
+            const accentClass = dagLog.stemming <= 3 ? 'text-indigo-300' : dagLog.stemming <= 6 ? 'text-indigo-600' : 'text-orange-600';
+            const sliderTrackClass = dagLog.stemming <= 3 ? 'bg-white/20' : 'bg-slate-300';
+
             const getStemmingTekst = (s) => {
                 if (s <= 2) return "Ik voel me opgebrand";
                 if (s <= 4) return "Ik ben gestrest";
@@ -326,44 +412,75 @@
                 return "Ik voel me fantastisch!";
             };
 
-            const suggestie = MEDITATIES[0]; // Simplificatie voor demo
-            
-            // Universele handler voor voltooien
-            const voltooiSessie = () => {
-                setDagLog({...dagLog, meditatieGedaan: true});
+            const suggestie = (() => {
+                if (dagLog.stemming <= 3) return MEDITATIES.find(m => m.tags.includes('slecht')); 
+                if (dagLog.stemming <= 6) return MEDITATIES.find(m => m.tags.includes('neutraal')); 
+                return MEDITATIES.find(m => m.tags.includes('goed')); 
+            })();
+
+            const voltooiSessie = (duur, gemHartslag) => {
+                setDagLog(prev => ({
+                    ...prev, 
+                    meditatieSessies: [...prev.meditatieSessies, {
+                        titel: actieveSessie.titel,
+                        duur: duur,
+                        datum: new Date(),
+                        hartslag: gemHartslag
+                    }]
+                }));
                 setActieveSessie(null);
+            };
+
+            const updateMood = (val) => {
+                setDagLog(prev => ({...prev, stemming: val, checkInGedaan: true}));
             };
 
             if (actieveSessie) return <MeditatieSpeler sessie={actieveSessie} onClose={() => setActieveSessie(null)} onComplete={voltooiSessie} />;
 
             return (
-                <div className={`flex-1 overflow-y-auto pb-24 transition-colors duration-700 ${bgClass}`}>
-                    <Header titel="Geest" subtitel="Vind je rust" kleur={accentClass} onBack={() => navigeer('dashboard')} dark={dagLog.stemming <= 3} />
+                <div className="flex-1 overflow-y-auto pb-24 bg-white">
+                    <Header titel="Geest" subtitel="Vind je rust" kleur="text-indigo-500" onBack={() => navigeer('dashboard')} />
                     <div className="p-6">
-                        <div className={`mb-8 text-center rounded-3xl p-6 transition-all duration-500 ${dagLog.stemming <= 3 ? 'bg-white/10' : 'bg-white shadow-sm'}`}>
+                        <div className={`mb-8 text-center rounded-3xl p-6 transition-all duration-500 ${cardClass}`}>
                             <h3 className="font-bold text-lg mb-6">Hoe voel je je?</h3>
                             <div className="flex justify-between px-2 text-2xl mb-4">
                                 <Frown className={dagLog.stemming < 5 ? 'scale-125 opacity-100' : 'opacity-30'} />
                                 <Meh className={dagLog.stemming >= 5 && dagLog.stemming <= 6 ? 'scale-125 opacity-100' : 'opacity-30'} />
                                 <Smile className={dagLog.stemming > 6 ? 'scale-125 opacity-100' : 'opacity-30'} />
                             </div>
-                            <input type="range" min="1" max="10" value={dagLog.stemming} onChange={(e) => setDagLog({...dagLog, stemming: parseInt(e.target.value)})} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-current mb-4" />
+                            {/* Mood Slider met dynamische track kleur */}
+                            <input type="range" min="1" max="10" value={dagLog.stemming} onChange={(e) => updateMood(parseInt(e.target.value))} className={`w-full h-2 rounded-lg appearance-none cursor-pointer accent-current mb-4 ${sliderTrackClass}`} />
                             <p className={`font-bold text-lg ${accentClass}`}>{getStemmingTekst(dagLog.stemming)}</p>
                         </div>
 
-                        <h3 className="font-bold mb-4">Aanbevolen</h3>
-                        <button onClick={() => setActieveSessie(suggestie)} className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl p-6 relative overflow-hidden text-left mb-8 shadow-lg">
+                        <h3 className="font-bold text-slate-800 mb-4">Aanbevolen voor jou</h3>
+                        <button onClick={() => setActieveSessie(suggestie)} className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl p-6 relative overflow-hidden text-left mb-8 shadow-lg group">
                             <div className="relative z-10 text-white">
                                 <span className="text-[10px] font-bold px-2 py-1 bg-white/20 rounded-full mb-2 inline-block">TIP</span>
                                 <h4 className="text-2xl font-bold mb-1">{suggestie.titel}</h4>
+                                <p className="text-white/80 text-sm mb-4">{suggestie.ondertitel}</p>
                                 <div className="flex items-center gap-2 text-xs"><Clock size={12}/> {suggestie.duur/60} min</div>
                             </div>
                         </button>
 
-                        <h3 className="font-bold mb-4">Bibliotheek</h3>
+                        {dagLog.meditatieSessies.length > 0 && (
+                            <div className="mb-8">
+                                <h3 className="font-bold text-slate-800 mb-4">Vandaag gedaan</h3>
+                                <div className="space-y-2">
+                                    {dagLog.meditatieSessies.map((s, i) => (
+                                        <div key={i} className="flex justify-between items-center p-3 rounded-xl text-sm bg-white text-slate-800 border">
+                                            <span>{s.titel}</span>
+                                            <span className="opacity-60 text-xs">{Math.floor(s.duur/60)} min</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <h3 className="font-bold text-slate-800 mb-4">Bibliotheek</h3>
                         <div className="space-y-3">{MEDITATIES.map(med => (
-                            <button key={med.id} onClick={() => setActieveSessie(med)} className={`w-full flex items-center gap-4 p-4 border rounded-2xl text-left ${dagLog.stemming <= 3 ? 'border-white/10 hover:bg-white/5' : 'border-slate-100 hover:bg-slate-50'}`}>
-                                <div className="p-2 bg-white/10 rounded-lg"><Headphones size={20}/></div>
+                            <button key={med.id} onClick={() => setActieveSessie(med)} className="w-full flex items-center gap-4 p-4 border rounded-2xl text-left border-slate-100 hover:bg-slate-50 text-slate-800">
+                                <div className="p-2 bg-indigo-50 text-indigo-500 rounded-lg"><Headphones size={20}/></div>
                                 <div><h4 className="font-bold">{med.titel}</h4><p className="text-xs opacity-70">{med.ondertitel}</p></div>
                             </button>
                         ))}</div>
@@ -372,10 +489,10 @@
             );
         };
 
-        // --- BEWEGING ---
+        // --- BEWEGING MODULE ---
         const BewegingModule = ({ dagLog, setDagLog, navigeer }) => {
             const [actieveWorkout, setActieveWorkout] = useState(null);
-            if (actieveWorkout) return <WorkoutSpeler workout={actieveWorkout} onClose={() => setActieveWorkout(null)} onComplete={(cal) => { setDagLog(prev => ({ ...prev, stappen: prev.stappen + 500, verbrandeCalorieen: prev.verbrandeCalorieen + cal, workoutGedaan: true })); setActieveWorkout(null); }} />;
+            if (actieveWorkout) return <WorkoutSpeler workout={actieveWorkout} onClose={() => setActieveWorkout(null)} onComplete={(cal, tijd, bpm) => { setDagLog(prev => ({ ...prev, stappen: prev.stappen + 500, verbrandeCalorieen: prev.verbrandeCalorieen + cal, workoutGedaan: true })); setActieveWorkout(null); }} />;
             return (
                 <div className="flex-1 bg-white overflow-y-auto pb-24">
                     <Header titel="Beweging" subtitel="Houd je flow" kleur="text-rose-500" onBack={() => navigeer('dashboard')} />
@@ -391,40 +508,101 @@
         // --- SPELERS ---
         const WorkoutSpeler = ({ workout, onClose, onComplete }) => {
             const [sec, setSec] = useState(0);
-            useEffect(() => { const i = setInterval(() => setSec(s => s + 1), 1000); return () => clearInterval(i); }, []);
+            const [afgerond, setAfgerond] = useState(false);
+            const [bpm, setBpm] = useState(110);
+
+            useEffect(() => { 
+                if(!afgerond) { 
+                    const i = setInterval(() => {
+                        setSec(s => s + 1);
+                        setBpm(prev => 100 + Math.floor(Math.random() * 40));
+                    }, 1000); 
+                    return () => clearInterval(i); 
+                } 
+            }, [afgerond]);
+            
             const cal = Math.floor((sec/60) * workout.calPerMin);
+            
+            if(afgerond) return (
+                <div className="absolute inset-0 z-50 bg-white flex flex-col items-center justify-center animate-in slide-in-from-bottom">
+                    <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6 text-green-600"><CheckCircle size={48} /></div>
+                    <h2 className="text-3xl font-bold text-slate-800 mb-2">Goed gedaan!</h2>
+                    
+                    <div className="flex gap-6 mt-8 text-center">
+                        <div><span className="block text-2xl font-bold">{Math.floor(sec/60)}:{sec%60 < 10 ? '0'+sec%60 : sec%60}</span><span className="text-xs text-slate-400 uppercase">Tijd</span></div>
+                        <div className="w-px bg-slate-200"></div>
+                        <div><span className="block text-2xl font-bold text-rose-500">~125</span><span className="text-xs text-slate-400 uppercase">Gem. BPM</span></div>
+                        <div className="w-px bg-slate-200"></div>
+                        <div><span className="block text-2xl font-bold text-orange-500">{cal}</span><span className="text-xs text-slate-400 uppercase">Kcal</span></div>
+                    </div>
+
+                    <button onClick={() => onComplete(cal, sec, 125)} className="mt-12 bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold shadow-lg">Sluiten</button>
+                </div>
+            );
+
             return (
                 <div className={`absolute inset-0 z-50 ${workout.kleur} flex flex-col text-white p-6 pt-12 animate-in slide-in-from-bottom`}>
                     <button onClick={onClose} className="self-start mb-8"><X/></button>
                     <div className="flex-1 flex flex-col items-center justify-center">
-                        <div className="text-8xl font-black mb-4">{Math.floor(sec/60)}:{sec%60 < 10 ? '0'+sec%60 : sec%60}</div>
-                        <div className="flex gap-4 text-xl"><span className="flex gap-2"><Flame/> {cal} kcal</span><span className="flex gap-2"><Heart className="animate-pulse"/> 110 bpm</span></div>
+                        <div className="text-8xl font-black mb-4 tabular-nums">{Math.floor(sec/60)}:{sec%60 < 10 ? '0'+sec%60 : sec%60}</div>
+                        <div className="flex gap-4 text-xl"><span className="flex gap-2"><Flame/> {cal} kcal</span><span className="flex gap-2"><Heart className="animate-pulse"/> {bpm} bpm</span></div>
                     </div>
-                    <button onClick={() => onComplete(cal)} className="w-full bg-white text-slate-900 py-4 rounded-2xl font-bold text-lg mt-8">Klaar</button>
+                    <button onClick={() => setAfgerond(true)} className="w-full bg-white text-slate-900 py-4 rounded-2xl font-bold text-lg mt-8">Klaar</button>
                 </div>
             );
         };
 
         const MeditatieSpeler = ({ sessie, onClose, onComplete }) => {
-            const [sec, setSec] = useState(sessie.duur);
-            useEffect(() => { const i = setInterval(() => setSec(s => s > 0 ? s - 1 : 0), 1000); return () => clearInterval(i); }, []);
+            const [sec, setSec] = useState(0);
+            const [afgerond, setAfgerond] = useState(false);
+            const [bpm, setBpm] = useState(85);
+
+            useEffect(() => { 
+                if(!afgerond) {
+                    const i = setInterval(() => {
+                        setSec(s => s + 1);
+                        if(sec % 10 === 0 && bpm > 60) setBpm(b => b - 1);
+                    }, 1000); 
+                    return () => clearInterval(i); 
+                }
+            }, [afgerond, bpm, sec]);
+            
+            if(afgerond) return (
+                <div className="absolute inset-0 z-50 bg-white flex flex-col items-center justify-center animate-in slide-in-from-bottom">
+                    <div className="w-24 h-24 bg-indigo-100 rounded-full flex items-center justify-center mb-6 text-indigo-600"><Wind size={48} /></div>
+                    <h2 className="text-3xl font-bold text-slate-800 mb-2">Zen bereikt</h2>
+                    <div className="flex gap-8 mt-6 text-center">
+                        <div><span className="block text-2xl font-bold">{Math.floor(sec/60)}:{sec%60 < 10 ? '0'+sec%60 : sec%60}</span><span className="text-xs text-slate-400">Tijd</span></div>
+                        <div><span className="block text-2xl font-bold text-indigo-600">{Math.round(bpm)} bpm</span><span className="text-xs text-slate-400">Eind Hartslag</span></div>
+                    </div>
+                    <button onClick={() => onComplete(sec, bpm)} className="mt-12 bg-indigo-600 text-white px-8 py-4 rounded-2xl font-bold w-64">Sluiten</button>
+                </div>
+            );
+
             return (
                 <div className="absolute inset-0 z-50 bg-slate-900 flex flex-col text-white p-6 pt-12 animate-in slide-in-from-bottom">
                     <button onClick={onClose} className="self-start mb-8"><X/></button>
-                    <div className="flex-1 flex flex-col items-center justify-center text-center">
-                        <h2 className="text-3xl font-bold mb-2">{sessie.titel}</h2>
-                        <div className="text-6xl font-thin my-8">{Math.floor(sec/60)}:{sec%60 < 10 ? '0'+sec%60 : sec%60}</div>
+                    <div className="flex-1 flex flex-col items-center justify-center text-center relative">
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div className="w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl animate-breathe"></div>
+                            <div className="w-48 h-48 bg-indigo-400/10 rounded-full blur-xl animate-breathe" style={{animationDelay: '1s'}}></div>
+                        </div>
+                        <h2 className="text-3xl font-bold mb-2 relative z-10">{sessie.titel}</h2>
+                        <div className="text-6xl font-thin my-8 relative z-10 tabular-nums">{Math.floor(sec/60)}:{sec%60 < 10 ? '0'+sec%60 : sec%60}</div>
+                        <div className="flex items-center gap-2 text-rose-300 bg-white/5 px-4 py-2 rounded-full"><Heart size={16} className="animate-pulse" /><span>{bpm} bpm</span></div>
                     </div>
-                    {/* Demo knop om direct af te ronden */}
-                    <button onClick={onComplete} className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-lg">Voltooi Sessie</button>
+                    <button onClick={() => setAfgerond(true)} className="w-full bg-white/10 hover:bg-white/20 text-white py-4 rounded-2xl font-bold text-lg">Klaar</button>
                 </div>
             );
         };
 
-        const Header = ({ titel, subtitel, kleur, onBack, dark }) => (
-            <div className={`pt-12 px-6 pb-4 sticky top-0 z-10 ${dark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-50 border-b'}`}>
-                <button onClick={onBack} className={`mb-4 flex items-center gap-1 text-sm font-medium ${dark ? 'text-white/70' : 'text-slate-400'}`}><ChevronRight className="rotate-180" size={16} /> Terug</button>
-                <h1 className={`text-3xl font-bold ${kleur}`}>{titel}</h1><p className={dark ? 'text-white/50' : 'text-slate-400'}>{subtitel}</p>
+        const Header = ({ titel, subtitel, kleur, onBack }) => (
+            <div className="pt-12 px-6 pb-4 bg-white border-b border-slate-50 sticky top-0 z-10">
+                <button onClick={onBack} className="text-slate-400 mb-4 flex items-center gap-1 text-sm font-medium">
+                    <ChevronRight className="rotate-180" size={16} /> Terug naar overzicht
+                </button>
+                <h1 className={`text-3xl font-bold ${kleur}`}>{titel}</h1>
+                <p className="text-slate-400">{subtitel}</p>
             </div>
         );
 
